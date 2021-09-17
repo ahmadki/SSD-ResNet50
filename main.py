@@ -71,8 +71,6 @@ def make_parser():
                         help='save model checkpoints in the specified directory')
     parser.add_argument('--mode', type=str, default='training',
                         choices=['training', 'evaluation', 'benchmark-training', 'benchmark-inference'])
-    parser.add_argument('--evaluation', nargs='*', type=int, default=[21, 31, 37, 42, 48, 53, 59, 64],
-                        help='epochs at which to evaluate')
     parser.add_argument('--multistep', nargs='*', type=int, default=[43, 54],
                         help='epochs at which to decay learning rate')
 
@@ -207,11 +205,10 @@ def train(train_loop_func, logger, args):
         if args.local_rank == 0:
             logger.update_epoch_time(epoch, end_epoch_time)
 
-        if epoch in args.evaluation:
-            acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+        acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
 
-            if args.local_rank == 0:
-                logger.update_epoch(epoch, acc)
+        if args.local_rank == 0:
+            logger.update_epoch(epoch, acc)
 
         if args.save and args.local_rank == 0:
             print("saving model...")
@@ -242,7 +239,6 @@ def log_params(logger, args):
         "seed": args.seed,
         "checkpoint path": args.checkpoint,
         "mode": args.mode,
-        "eval on epochs": args.evaluation,
         "lr decay epochs": args.multistep,
         "learning rate": args.learning_rate,
         "momentum": args.momentum,
