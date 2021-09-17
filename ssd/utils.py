@@ -279,9 +279,11 @@ class DefaultBoxes(object):
         if order == "xywh": return self.dboxes
 
 
-def dboxes300_coco():
-    figsize = 300
-    feat_size = [38, 19, 10, 5, 3, 1]
+def dboxes_coco(figsize):
+    if figsize==300:
+        feat_size = [38, 19, 10, 5, 3, 1]
+    else:
+        feat_size = [100, 50, 25, 13, 11, 9]
     steps = [8, 16, 32, 64, 100, 300]
     # use the scales here: https://github.com/amdegroot/ssd.pytorch/blob/master/data/config.py
     scales = [21, 45, 99, 153, 207, 261, 315]
@@ -405,13 +407,13 @@ class SSDTransformer(object):
         Flipping
         Jittering
     """
-    def __init__(self, dboxes, size = (300, 300), val=False):
+    def __init__(self, dboxes, size, val=False):
 
         # define vgg16 mean
         self.size = size
         self.val = val
 
-        self.dboxes_ = dboxes #DefaultBoxes300()
+        self.dboxes_ = dboxes
         self.encoder = Encoder(self.dboxes_)
 
         self.crop = SSDCropping()

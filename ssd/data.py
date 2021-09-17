@@ -17,7 +17,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 
-from ssd.utils import dboxes300_coco, COCODetection
+from ssd.utils import dboxes_coco, COCODetection
 from ssd.utils import SSDTransformer
 from pycocotools.coco import COCO
 #DALI import
@@ -30,13 +30,15 @@ def get_train_loader(args, local_seed):
     train_pipe = COCOPipeline(batch_size=args.batch_size,
         file_root=train_coco_root,
         annotations_file=train_annotate,
-        default_boxes=dboxes300_coco(),
+        default_boxes=dboxes_coco(args.figsize),
         device_id=args.local_rank,
         num_shards=args.N_gpu,
         output_fp16=args.amp,
         output_nhwc=False,
         pad_output=False,
-        num_threads=args.num_workers, seed=local_seed)
+        num_threads=args.num_workers,
+        seed=local_seed,
+        figsize=args.figsize)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
     train_loader = DALICOCOIterator(train_pipe, 118287 / args.N_gpu)
@@ -44,8 +46,8 @@ def get_train_loader(args, local_seed):
 
 
 def get_val_dataset(args):
-    dboxes = dboxes300_coco()
-    val_trans = SSDTransformer(dboxes, (300, 300), val=True)
+    dboxes = dboxes_coco(args.figsize)
+    val_trans = SSDTransformer(dboxes, (args.figsize, args.figsize), val=True)
 
     val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     val_coco_root = os.path.join(args.data, "val2017")

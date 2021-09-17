@@ -21,7 +21,7 @@ from torch.optim.lr_scheduler import MultiStepLR
 import torch.utils.data.distributed
 
 from ssd.model import SSD300, ResNet, Loss
-from ssd.utils import dboxes300_coco, Encoder
+from ssd.utils import dboxes_coco, Encoder
 from ssd.logger import Logger, BenchLogger
 from ssd.evaluate import evaluate
 from ssd.train import train_loop, tencent_trick, load_checkpoint, benchmark_train_loop, benchmark_inference_loop
@@ -53,7 +53,7 @@ def generate_mean_std(args):
 def make_parser():
     parser = ArgumentParser(description="Train Single Shot MultiBox Detector"
                                         " on COCO")
-    parser.add_argument('--data', '-d', type=str, default='/coco', required=True,
+    parser.add_argument('--data', '-d', type=str, default='/datasets/coco2017',
                         help='path to test and training data files')
     parser.add_argument('--epochs', '-e', type=int, default=65,
                         help='number of epochs for training')
@@ -105,6 +105,7 @@ def make_parser():
     parser.add_argument('--json-summary', type=str, default=None,
                         help='If provided, the json summary will be written to'
                              'the specified file.')
+    parser.add_argument('--figsize', type=int, default=300, help='image size')
 
     # Distributed
     parser.add_argument('--local_rank', default=os.getenv('LOCAL_RANK',0), type=int,
@@ -141,7 +142,7 @@ def train(train_loop_func, logger, args):
 
 
     # Setup data, defaults
-    dboxes = dboxes300_coco()
+    dboxes = dboxes_coco(args.figsize)
     encoder = Encoder(dboxes)
     cocoGt = get_coco_ground_truth(args)
 

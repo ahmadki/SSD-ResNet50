@@ -27,7 +27,7 @@ class COCOPipeline(Pipeline):
     def __init__(self, batch_size, file_root, annotations_file, default_boxes,
                  device_id, num_shards,
                  output_fp16=False, output_nhwc=False, pad_output=False,
-                 num_threads=1, seed=15):
+                 num_threads=1, seed=15, figsize=300):
         super(COCOPipeline, self).__init__(batch_size=batch_size,
                                            device_id=device_id,
                                            num_threads=num_threads,
@@ -70,7 +70,7 @@ class COCOPipeline(Pipeline):
         output_layout = dali.types.NHWC if output_nhwc else dali.types.NCHW
         self.normalize = dali.ops.CropMirrorNormalize(
             device="gpu",
-            crop=(300, 300),
+            crop=(figsize, figsize),
             mean=[0.0, 0.0, 0.0],
             std=[255.0, 255.0, 255.0],
             mirror=0,
@@ -83,8 +83,8 @@ class COCOPipeline(Pipeline):
 
         # Resize
         self.resize = dali.ops.Resize(device="cpu",
-                                      resize_x=300,
-                                      resize_y=300)
+                                      resize_x=figsize,
+                                      resize_y=figsize)
 
         # Random variables
         self.rng1 = dali.ops.random.Uniform(range=[0.5, 1.5])
