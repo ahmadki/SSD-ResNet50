@@ -1,3 +1,9 @@
+# Deprecation notice
+
+This repo is no longer in use or maintained, the detection benchmark in MLCommons was updated to use RetinaNet instead of SSD: https://github.com/mlcommons/training
+
+----------------------------------------------
+
 # SSD-ResNet50
 This is an experimental repository that is based on Nvidia's SSD-RN50 and is used to test and evaluate the model as the new object detection benchmark for MLPerf training and inference.
 
